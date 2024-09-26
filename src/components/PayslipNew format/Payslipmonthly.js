@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import MenuIcon from '@mui/icons-material/Menu';
 import {
   Table,
   TableBody,
@@ -12,6 +13,9 @@ import {
   Box,
   Checkbox,
   FormControlLabel,
+  IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { useLocation } from "react-router-dom";
 import PaySlipTemplate from "./paysliptemplate";
@@ -122,7 +126,6 @@ function Tabular({ data, empprof }) {
     return new Intl.DateTimeFormat("en-US", options).format(date);
   };
 
-
   const getYearFromDate = (dateString) => {
     const date = new Date(dateString);
     return date.getFullYear(); // Get the full year (4 digits)
@@ -199,18 +202,12 @@ function Tabular({ data, empprof }) {
   );
 }
 
-
-
-
-
-
 function Classic({ data, empprof }) {
   const getMonthFromDate = (dateString) => {
     const date = new Date(dateString);
     const options = { month: "long" }; // Options to get the full month name
     return new Intl.DateTimeFormat("en-US", options).format(date);
   };
-
 
   const getYearFromDate = (dateString) => {
     const date = new Date(dateString);
@@ -314,6 +311,7 @@ function Classic({ data, empprof }) {
 }
 
 function Payslipmonthly({ paym, pnEmployeeId, employeeCode }) {
+  const [anchorEl, setAnchorEl] = useState(null);
   const [checked, setChecked] = useState({
     checkbox1: false,
     checkbox2: true,
@@ -339,17 +337,12 @@ function Payslipmonthly({ paym, pnEmployeeId, employeeCode }) {
     }
   }, [pnEmployeeId]); // Only run when pnEmployeeId changes
 
-  const renderUI = () => {
-    const empprofItem = Empprof[0] || {};
-    if (checked.checkbox1) {
-      return <Tabular data={paym} empprof={empprofItem} />;
-    } else if (checked.checkbox2) {
-      return <Elegant data={paym} empprof={empprofItem} />;
-    } else if (checked.checkbox3) {
-      return <Classic data={paym} empprof={empprofItem} />;
-    } else {
-      return null;
-    }
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
 
   const handleCheckboxChange = (event) => {
@@ -367,48 +360,64 @@ function Payslipmonthly({ paym, pnEmployeeId, employeeCode }) {
     });
   };
 
+  const renderUI = () => {
+    const empprofItem = Empprof[0] || {};
+    if (checked.checkbox1) {
+      return <Tabular data={paym} empprof={empprofItem} />;
+    } else if (checked.checkbox2) {
+      return <Elegant data={paym} empprof={empprofItem} />;
+    } else if (checked.checkbox3) {
+      return <Classic data={paym} empprof={empprofItem} />;
+    } else {
+      return null;
+    }
+  };
+
   return (
     <Grid container spacing={2}>
-      <Grid item xs={4}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={checked.checkbox1}
-              onChange={handleCheckboxChange}
-              name="checkbox1"
-            />
-          }
-          label="Tabular"
-        />
-      </Grid>
-      <Grid item xs={4}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={checked.checkbox2}
-              onChange={handleCheckboxChange}
-              name="checkbox2"
-            />
-          }
-          label="Elegant"
-        />
-      </Grid>
-      <Grid item xs={4}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={checked.checkbox3}
-              onChange={handleCheckboxChange}
-              name="checkbox3"
-            />
-          }
-          label="Classic"
-        />
-      </Grid>
-      <Grid item xs={12}>
-        {renderUI()}
-      </Grid>
+    <Grid item xs={12}>
+      <Box display="flex" justifyContent="flex-end" sx={{marginRight : "20px"}}>
+        <IconButton onClick={handleMenuOpen}>
+          <Typography variant="body1" color="black">Choose Templates</Typography>
+          <MenuIcon sx={{ marginLeft: 1, color: "blue" }} />
+        </IconButton>
+      </Box>
+  
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem>
+          <Checkbox
+            checked={checked.checkbox1}
+            onChange={handleCheckboxChange}
+            name="checkbox1"
+          />
+          Tabular
+        </MenuItem>
+        <MenuItem>
+          <Checkbox
+            checked={checked.checkbox2}
+            onChange={handleCheckboxChange}
+            name="checkbox2"
+          />
+          Elegant
+        </MenuItem>
+        <MenuItem>
+          <Checkbox
+            checked={checked.checkbox3}
+            onChange={handleCheckboxChange}
+            name="checkbox3"
+          />
+          Classic
+        </MenuItem>
+      </Menu>
     </Grid>
+    <Grid item xs={12} mt={-5}>
+      {renderUI()}
+    </Grid>
+  </Grid>
   );
 }
 
